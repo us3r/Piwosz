@@ -1,0 +1,7 @@
+sock: /home/koneser/PIWOSZ/lock/piwosz.sock
+mysql:
+  path: /home/koneser/PIWOSZ/conf/my.cnf
+log:
+  access: /home/koneser/PIWOSZ/log/access.log
+  error: /home/koneser/PIWOSZ/log/error.log
+  lock: /home/koneser/PIWOSZ/lock

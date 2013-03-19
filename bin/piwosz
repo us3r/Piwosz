@@ -1,0 +1,46 @@
+#!/usr/bin/perl
+
+use strict;
+use IO::Socket;
+use Encode;
+use YAML qw(LoadFile); 
+use utf8;
+$|++;
+
+$SIG{INT} = 'IGNORE';
+
+my $config = YAML::LoadFile('/home/koneser/PIWOSZ/conf/piwosz.yaml');
+
+my $sock = new IO::Socket::UNIX (
+				Peer => $config->{'sock'},
+                                Type => SOCK_STREAM,
+				Timeout => 10, 
+                                );
+die "\e[1;31mPIWOSZ\e[0m nie odpowiada, poniewaz \e[1;31m$!\e[0m\n" unless $sock;
+binmode(STDOUT,':utf8');
+binmode(STDIN,':utf8');
+binmode($sock, ':utf8');
+
+my $args = join(' ',$ENV{PWD},@ARGV);
+print $sock $args."\n";
+while(<$sock>) {
+	chomp;
+	my $response = $_;
+	if($response =~ /^\((INT|PASS)\)\s(.*)$/) {
+		print $2;
+		my $input;
+		if($1 eq 'PASS') {
+			system 'stty -echo';
+			$input = <STDIN>;
+			system 'stty echo';
+			print "\n";
+		} else {
+			$input = <STDIN>;
+		}
+		print $sock $input;
+	} else {
+		print $response."\n";
+	}
+}	
+
+close($sock);
